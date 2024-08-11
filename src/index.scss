@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	body {
+		@apply font-body text-base;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
+		&::-webkit-scrollbar {
+			@apply w-[6px];
+			-webkit-appearance: none;
+		}
+		&::-webkit-scrollbar-track {
+			@apply bg-[#fcfbff];
+		}
+		&::-webkit-scrollbar-thumb {
+			@apply bg-slate-500 rounded-lg;
+		}
+	}
+}
+#scrollPane {
+	scroll-margin-block-start: 100px;
+}
+.scroll-bar {
+	&::-webkit-scrollbar {
+		@apply w-[6px];
+		-webkit-appearance: none;
+	}
+	&::-webkit-scrollbar-track {
+		@apply bg-[#fcfbff];
+	}
+	&::-webkit-scrollbar-thumb {
+		@apply bg-slate-400 rounded-md;
+	}
+}
+
+.app-wrapper {
+	@apply bg-white flex overflow-hidden flex-1;
+	transition: all 0.5s cubic-bezier(0.685, 0.0473, 0.346, 1);
+}
+.app-main {
+	@apply flex flex-1 flex-col relative min-w-0 min-h-screen;
+}
+.app-content {
+	@apply flex flex-1 flex-col p-0;
+	transition: all 0.5s cubic-bezier(0.685, 0.0473, 0.346, 1);
+}
+.app-content--inner {
+	@apply py-10 px-8 flex flex-1;
+}
