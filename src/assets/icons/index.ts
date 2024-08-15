@@ -12,7 +12,7 @@ import Globe from './Globe';
 import Home from './Home';
 import HomeOutline from './HomeOutline';
 import Identification from './Identification';
-import Infomation from './Infomation';
+import Information from './Information';
 import Key from './Key';
 import PackInfo from './PackInfo';
 import Phone from './Phone';
@@ -27,6 +27,7 @@ import Email from './Email';
 import Location from './Location';
 import Logout from './Logout';
 import AddTab from './AddTab';
+import OrderIcon from './Order';
 
 
 export default {
@@ -56,7 +57,8 @@ export default {
   Book,
   Download,
   Brand,
-  Infomation,
+  Information,
   Diary,
-  AddTab
+  AddTab,
+  OrderIcon
 };
