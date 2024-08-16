@@ -5,8 +5,10 @@
 @layer base {
 	body {
 		@apply font-body text-base;
+		scroll-behavior: smooth;
 		text-rendering: optimizeLegibility;
 		-webkit-font-smoothing: antialiased;
+
 		&::-webkit-scrollbar {
 			@apply w-[6px];
 			-webkit-appearance: none;
@@ -19,9 +21,7 @@
 		}
 	}
 }
-#scrollPane {
-	scroll-margin-block-start: 100px;
-}
+
 .scroll-bar {
 	&::-webkit-scrollbar {
 		@apply w-[6px];
