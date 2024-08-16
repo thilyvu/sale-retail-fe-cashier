@@ -16,11 +16,11 @@
             cursor: pointer;
         }
         &__active {
-            background: white;
+            background: white  !important;
             @include pointer-cursor
         }
         &__deActive {
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.6) !important;
             @include pointer-cursor
         }
     }

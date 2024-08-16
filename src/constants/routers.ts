@@ -1,4 +1,5 @@
 const router = {
+  root: '/',
   home: {
     root: '/',
     lookup: '/lookup',

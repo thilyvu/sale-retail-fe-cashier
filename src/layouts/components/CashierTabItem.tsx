@@ -1,42 +1,44 @@
 import { CloseOutlined } from "@ant-design/icons";
 import { Button } from "antd";
+import { ITab, useCashierStore } from "~/store/cashierStore";
 import "./CashierTabItem.scss";
-import { ITab } from "./CashierTab";
 
 interface ITabItemProps {
-  children?: React.ReactNode;
   className?: string;
   tabIndex?: number;
-  onDeleteTab: Function;
-  onChangeActiveTab: Function;
   tab: ITab;
-  tabs: Array<ITab>;
+  isActive?: boolean;
 }
 
-function CashierTabItem({
-  children,
-  tabIndex,
-  className,
-  tab,
-  onChangeActiveTab,
-  onDeleteTab,
-  tabs,
-}: ITabItemProps) {
+function CashierTabItem({ isActive, tabIndex, tab }: ITabItemProps) {
+  const { activeTab, tabs, setTabs, setActiveTab } = useCashierStore(
+    (state) => state
+  );
+
+  const handleDeleteTab = (tabId: string) => {
+    const remainTabs = tabs.filter((tab) => tab.id !== tabId);
+    if (tabId === activeTab) {
+      setActiveTab(remainTabs[0].id);
+    }
+    setTabs(remainTabs);
+  };
+
   return (
     <div
-      className={`tabItemContainer ${className}`}
-      onClick={() => onChangeActiveTab(tab.id)}
+      className={`tabItemContainer ${
+        isActive ? "tab-container__active" : "tab-container__deActive"
+      }`}
+      onClick={() => setActiveTab(tab.id)}
     >
       <p style={{ color: "black", fontWeight: "500" }}>Hóa đơn {tabIndex} </p>
       <Button
         className="ml-2"
         type="text"
         style={{ visibility: tabs.length === 1 ? "hidden" : "initial" }}
-        onClick={() => onDeleteTab(tab.id)}
+        onClick={() => handleDeleteTab(tab.id)}
         icon={<CloseOutlined />}
         size="small"
       />
-      {children}
     </div>
   );
 }
