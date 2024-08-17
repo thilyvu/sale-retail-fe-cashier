@@ -1,21 +1,25 @@
 import { Button } from "antd";
 import AddTab from "~/assets/icons/AddTab";
-import { useCashierStore } from "~/store/cashierStore";
-import CashierTabItem from "../CashierTabItem/CashierTabItem";
+import { useCashierStore } from "../../stores/cashierStore";
+import CashierTabItem from "../CashierTabItem";
 
 function CashierTab() {
-	const { activeTab, tabs, addNewTab } = useCashierStore((state) => state);
+	const { tabs, activeTab, createTab, setActiveTab, removeTab } =
+		useCashierStore((state) => state);
 
 	return (
 		<div className="relative flex items-center">
 			<div className="flex items-center gap-2 lg:max-w-[70vw] overflow-hidden md:max-w-[60vw] sm:max-w-[20vw]">
-				{tabs.map((tab, tabIndex) => {
+				{tabs.map((tab, index) => {
 					return (
 						<CashierTabItem
-							key={tab.id}
-							isActive={tab.id === activeTab}
+							key={index}
 							tab={tab}
-							tabIndex={tabIndex + 1}
+							isActive={tab.id === activeTab}
+							tabIndex={index + 1}
+							isLastTab={tabs.length === 1}
+							onDeleteTab={(id) => removeTab(id)}
+							onChangeActiveTab={setActiveTab}
 						/>
 					);
 				})}
@@ -25,7 +29,7 @@ function CashierTab() {
 				className="ml-3 bg-transparent cursor-pointer w-fit p-1"
 				type="text"
 				icon={<AddTab />}
-				onClick={addNewTab}
+				onClick={createTab}
 			/>
 		</div>
 	);

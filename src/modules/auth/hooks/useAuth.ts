@@ -7,10 +7,10 @@ import { useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getMe } from "~/api";
-import { useAccountStore } from "~/store/accountStore";
-import { authentication } from "../../../libs/firebase";
-import routers from "../../../routes/routers";
-import { ISignInFormInput } from "../../../types/account";
+import { authentication } from "~/libs/firebase";
+import routers from "~/routes/routers";
+import { useAccountStore } from "../stores/accountStore";
+import { ISignInFormInput } from "../types";
 
 export function useAuth() {
 	const navigate = useNavigate();
