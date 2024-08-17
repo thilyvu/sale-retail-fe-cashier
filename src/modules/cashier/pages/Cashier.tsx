@@ -1,10 +1,5 @@
-import { Table } from "antd";
-import type { TableProps } from "antd";
-
-import type { MenuProps } from "antd";
-import { Layout, Menu } from "antd";
-import React from "react";
-import { Outlet } from "react-router-dom";
+import type { MenuProps, TableProps } from "antd";
+import { Layout, Table } from "antd";
 import { CashierHeader } from "../components";
 
 interface DataType {
@@ -16,15 +11,6 @@ interface DataType {
 	address: string;
 }
 
-const { Header, Footer } = Layout;
-
-const items1: MenuProps["items"] = ["1", "2", "3"].map((key) => ({
-	key,
-	label: `nav ${key}`,
-}));
-
-// In the fifth row, other columns are merged into first column
-// by setting it's colSpan to be 0
 const sharedOnCell = (_: DataType, index?: number) => {
 	if (index === 1) {
 		return { colSpan: 0 };
@@ -131,10 +117,7 @@ export default function Cashier() {
 	return (
 		<Layout>
 			<CashierHeader />
-			{/* <Table columns={columns} dataSource={data} bordered />; */}
-			<Footer className="text-center">
-				Ant Design ©{new Date().getFullYear()} Created by Ant UED
-			</Footer>
+			<Table columns={columns} dataSource={data} bordered />;
 		</Layout>
 	);
 }
