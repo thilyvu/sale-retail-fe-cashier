@@ -28,6 +28,7 @@ import Location from './Location';
 import Logout from './Logout';
 import AddTab from './AddTab';
 import OrderIcon from './Order';
+import Pencil from './Pencil';
 
 
 export default {
@@ -54,6 +55,7 @@ export default {
   Eye,
   Upload,
   Search,
+  Pencil,
   Book,
   Download,
   Brand,
