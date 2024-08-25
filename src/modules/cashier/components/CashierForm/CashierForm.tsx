@@ -1,7 +1,7 @@
 import { Button, Card, Form, Input, Radio } from "antd";
 import { useState } from "react";
 import UserSelect from "../UserSelect";
-import { formatCurrency } from "~/helper/formater";
+import { formatCurrency } from "~/helper/formatter";
 import Icons from "~/assets/icons";
 interface ICashierFormProps {
   children: React.ReactNode;
@@ -35,6 +35,7 @@ function CashierForm({ children, className }: ICashierFormProps) {
               <p className="text-[#646464]">Giảm giá </p>
             </div>
             <Input
+              variant="borderless"
               placeholder="Nhập giảm giá"
               className="col-span-3 border-solid border border-t-0 border-r-0 border-l-0 rounded-none border-gray-200"
             ></Input>
@@ -52,6 +53,7 @@ function CashierForm({ children, className }: ICashierFormProps) {
               <p className="text-[#646464]">Khách thanh toán </p>
             </div>
             <Input
+              variant="borderless"
               placeholder="Nhập thanh toán"
               className="col-span-2 border-solid border border-t-0 border-r-0 border-l-0 rounded-none border-gray-200"
             ></Input>

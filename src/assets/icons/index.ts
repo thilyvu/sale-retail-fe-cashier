@@ -29,6 +29,9 @@ import Logout from './Logout';
 import AddTab from './AddTab';
 import OrderIcon from './Order';
 import Pencil from './Pencil';
+import Trash from './Trash';
+import PlusNoOutline from './PlusNoOutline';
+import EllipsisVertical from './EllipsisVertical'
 
 
 export default {
@@ -43,6 +46,8 @@ export default {
   Card,
   Company,
   Identification,
+  PlusNoOutline,
+  EllipsisVertical,
   Distribution,
   ReLock,
   Tree,
@@ -62,5 +67,6 @@ export default {
   Information,
   Diary,
   AddTab,
-  OrderIcon
+  OrderIcon,
+  Trash
 };
