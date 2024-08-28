@@ -23,4 +23,5 @@ export type ESProductDocument = {
   keywords: string;
   units: ProductUnit[];
   image: string;
+  quantity?: number;
 };

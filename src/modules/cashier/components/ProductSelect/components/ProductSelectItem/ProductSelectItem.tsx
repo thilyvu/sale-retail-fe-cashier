@@ -5,14 +5,16 @@ interface IProductSelectItemProps {
   children: React.ReactNode;
   product: ESProductDocument;
   className?: string;
+  onAddProduct: (product: ESProductDocument) => void;
 }
 const ProductSelectItem = ({
   children,
   product,
   className,
+  onAddProduct,
 }: IProductSelectItemProps) => {
   return (
-    <div className={`${className}`}>
+    <div className={`${className}`} onClick={() => onAddProduct(product)}>
       <div className="flex-0 p-3">
         <img className="w-10 h-10 object-cover" src={product.image} />
       </div>
