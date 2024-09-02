@@ -23,19 +23,20 @@ export function useAuth() {
 			authentication,
 			async (credential) => {
 				if (credential) {
-					getMe()
+					const idToken = await credential.getIdTokenResult();
+					localStorage.setItem("access_token", idToken.token);
+					return await getMe()
 						.then((res) => setUser(res))
 						.catch(() => localStorage.removeItem("access_token"))
 						.finally(() => setLoading(false));
-				} else {
-					localStorage.removeItem("access_token");
-					setLoading(false);
 				}
+				localStorage.removeItem("access_token");
+				setLoading(false);
 			}
 		);
 
 		return () => unregisterAuthObserver();
-	}, [setUser]);
+	}, []);
 
 	const signInWithEmailPassword = async ({
 		email,
