@@ -1,14 +1,11 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-	body {
-		@apply font-body text-base;
-		scroll-behavior: smooth;
-		text-rendering: optimizeLegibility;
-		-webkit-font-smoothing: antialiased;
-
+	* {
 		&::-webkit-scrollbar {
 			@apply w-[6px];
 			-webkit-appearance: none;
@@ -17,8 +14,15 @@
 			@apply bg-[#fcfbff];
 		}
 		&::-webkit-scrollbar-thumb {
-			@apply bg-slate-500 rounded-lg;
+			@apply bg-slate-300 rounded-lg;
 		}
+	}
+
+	body {
+		@apply font-body text-base;
+		scroll-behavior: smooth;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
 	}
 }
 
@@ -39,13 +43,16 @@
 	@apply bg-white flex overflow-hidden flex-1;
 	transition: all 0.5s cubic-bezier(0.685, 0.0473, 0.346, 1);
 }
+
 .app-main {
 	@apply flex flex-1 flex-col relative min-w-0 min-h-screen;
 }
+
 .app-content {
 	@apply flex flex-1 flex-col p-0;
 	transition: all 0.5s cubic-bezier(0.685, 0.0473, 0.346, 1);
 }
+
 .app-content--inner {
 	@apply py-10 px-8 flex flex-1;
 }
