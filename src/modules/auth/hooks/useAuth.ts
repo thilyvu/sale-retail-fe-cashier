@@ -23,19 +23,23 @@ export function useAuth() {
 			authentication,
 			async (credential) => {
 				if (credential) {
-					getMe()
+					const idToken = await credential.getIdTokenResult();
+					localStorage.setItem("access_token", idToken.token);
+					return await getMe()
 						.then((res) => setUser(res))
-						.catch(() => localStorage.removeItem("access_token"))
+						.catch(async () => {
+							localStorage.removeItem("access_token");
+							await signOutFirebase(authentication);
+						})
 						.finally(() => setLoading(false));
-				} else {
-					localStorage.removeItem("access_token");
-					setLoading(false);
 				}
+				localStorage.removeItem("access_token");
+				setLoading(false);
 			}
 		);
 
 		return () => unregisterAuthObserver();
-	}, [setUser]);
+	}, []);
 
 	const signInWithEmailPassword = async ({
 		email,
@@ -46,14 +50,6 @@ export function useAuth() {
 			.then(async ({ user }) => {
 				const idToken = await user.getIdTokenResult();
 				localStorage.setItem("access_token", idToken.token);
-				await getMe()
-					.then((res) => setUser(res))
-					.catch(async () => {
-						await signOutFirebase(authentication);
-						localStorage.removeItem("access_token");
-						return Promise.reject("Thông tin đăng nhập không chính xác");
-					})
-					.finally(() => setLoading(false));
 			})
 			.catch(() => {
 				return Promise.reject("Thông tin đăng nhập không chính xác");
