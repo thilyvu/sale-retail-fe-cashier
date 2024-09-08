@@ -5,21 +5,27 @@ import { searchProduct } from "~/api/product";
 import useDebounce from "~/hooks/useDebounce";
 import { ESProductDocument } from "~/types/product";
 import { useCashierStore } from "../../stores/cashierStore";
-import ProductSelectItem from "./components/ProductSelectItem/ProductSelectItem";
+import { ProductSelectItem } from "./components";
 
 function ProductSelect() {
-	const { addProduct } = useCashierStore((state) => state);
+	const { activeTab, addProduct } = useCashierStore((state) => state);
 	const [keyword, setKeyword] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [showResult, setShowResult] = useState(false);
 	const [products, setProducts] = useState<Array<ESProductDocument>>([]);
 	const debounceKeyword = useDebounce(keyword, 300);
+
 	const containerRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<InputRef>(null);
 
 	useEffect(() => {
+		setKeyword("");
+		setProducts([]);
+		setShowResult(false);
+	}, [activeTab]);
+
+	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
-			console.log("click outside");
 			if (
 				containerRef.current &&
 				inputRef.current?.input &&

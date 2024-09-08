@@ -1,182 +1,234 @@
-import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
-import { OrderStatus } from "../type/type";
-import { ESProductDocument } from "~/types/product";
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { CashierCartItem } from '~/types/product';
+import { DiscountType, PaymentMethod } from '../types';
 
 export interface ITab {
   id: string;
-  products?: Array<ESProductDocument> | undefined;
-  customer_id?: string;
-  payment_method?: string;
-  total_amount?: number;
-  customer_paid_amount?: number;
-  final_amount?: number;
-  discount_type?: string;
-  discount_value?: number;
-  status?: OrderStatus;
+  products: Record<string, CashierCartItem>;
+  customer_id: string | null;
+  payment_method: PaymentMethod;
+  total_amount: number;
+  customer_paid_amount: number;
+  discount_type: DiscountType;
+  discount_value: number;
 }
 
-interface IState {
-  tabs: Array<ITab>;
+interface ICashierState {
+  tabs: Record<string, ITab>;
   activeTab: string;
+}
+
+interface ICashierAction {
   setActiveTab: (tabId: string) => void;
   createTab: () => void;
   removeTab: (id: string) => void;
-  addProduct: (product: ESProductDocument) => void;
-  changeProductQuantity: (productId: string, type: string) => void;
+  addProduct: (product: CashierCartItem) => void;
+  changeDiscountType: (type: DiscountType) => void;
+  changeProductQuantity: (unit_id: string, type: 'increase' | 'decrease') => void;
   removeProduct: (id: string) => void;
   removeAllProducts: () => void;
-  getActiveTabProducts: () => Array<ESProductDocument> | undefined;
+  getActiveTabProducts: () => Array<CashierCartItem> | undefined;
 }
 
 function generateTabId() {
   return Date.now().toString();
 }
 const defaultTabId = generateTabId();
-export const useCashierStore = create(
-  persist<IState>(
+export const useCashierStore = create<ICashierState & ICashierAction>()(
+  persist(
     (set, get) => ({
-      tabs: [
-        {
+      tabs: {
+        [defaultTabId]: {
           id: defaultTabId,
-          products: [],
+          products: {},
+          customer_id: null,
+          payment_method: PaymentMethod.CASH,
+          total_amount: 0,
+          customer_paid_amount: 0,
+          discount_type: DiscountType.AMOUNT,
+          discount_value: 0,
         },
-      ],
+      },
       activeTab: defaultTabId,
+      // Actions
       setActiveTab: (tabId) => set({ activeTab: tabId }),
       createTab: () =>
         set((state) => {
           const id = generateTabId();
           return {
-            tabs: [...state.tabs, { id: id }],
+            tabs: {
+              ...state.tabs,
+              [id]: {
+                id: id,
+                products: {},
+                customer_id: null,
+                payment_method: PaymentMethod.CASH,
+                total_amount: 0,
+                customer_paid_amount: 0,
+                final_amount: 0,
+                discount_type: DiscountType.AMOUNT,
+                discount_value: 0,
+              },
+            },
             activeTab: id,
           };
         }),
       removeTab: (id) =>
         set((state) => {
-          const remainTabs = state.tabs.filter((tab) => tab.id !== id);
+          const tabValues = Object.values(state.tabs);
+          const remainTabs = tabValues.filter((tab) => tab.id !== id);
+          const remainTabRecord = remainTabs.reduce((acc, tab) => {
+            acc[tab.id] = tab;
+            return acc;
+          }, {} as Record<string, ITab>);
           if (state.activeTab === id) {
-            const currentIndex = state.tabs.findIndex((tab) => tab.id === id);
+            const currentIndex = tabValues.findIndex((tab) => tab.id === id);
             const nextTab =
-              currentIndex === state.tabs.length - 1
-                ? remainTabs[currentIndex - 1]
-                : remainTabs[currentIndex];
+              currentIndex === tabValues.length - 1 ? remainTabs[currentIndex - 1] : remainTabs[currentIndex];
+
             return {
-              tabs: remainTabs,
+              tabs: remainTabRecord,
               activeTab: nextTab ? nextTab.id : remainTabs[0]?.id,
             };
           }
-          return { tabs: remainTabs };
+          return { tabs: remainTabRecord };
         }),
-      changeProductQuantity: (productId: string, type: string) => {
+      changeProductQuantity: (unit_id: string, type: 'increase' | 'decrease') => {
         set((state) => {
-          const tab = state.tabs.find((tab) => tab.id === state.activeTab);
+          const tab = state.tabs[state.activeTab];
           if (!tab) return state;
 
-          // Update products array
-          const updatedProducts = (tab.products as Array<ESProductDocument>)
-            .map((p) =>
-              p.id === productId
-                ? {
-                    ...p,
-                    quantity:
-                      type === "increase"
-                        ? (p.quantity || 0) + 1
-                        : (p.quantity || 0) - 1,
-                  }
-                : p
-            )
-            .filter((p) => p.quantity || 0 > 0);
+          const targetProduct = tab.products[unit_id];
 
-          const newTab = {
-            ...tab,
-            products: updatedProducts,
-          };
+          if (!targetProduct) return state;
+
+          let updatedProducts: Record<string, CashierCartItem> = tab.products;
+
+          if (targetProduct.quantity === 1 && type === 'decrease') {
+            delete updatedProducts[unit_id];
+          } else {
+            updatedProducts = {
+              ...updatedProducts,
+              [unit_id]: {
+                ...targetProduct,
+                quantity:
+                  type === 'increase'
+                    ? (tab.products[unit_id].quantity || 0) + 1
+                    : (tab.products[unit_id].quantity || 0) - 1,
+              },
+            };
+          }
+
+          const total_amount = Object.values(updatedProducts).reduce((acc, product) => {
+            return acc + (product.price * product.quantity || 0);
+          }, 0);
+
+          const final_amount =
+            total_amount -
+            (tab.discount_type === DiscountType.AMOUNT
+              ? tab.discount_value
+              : (total_amount * tab.discount_value) / 100);
+
+          const newTab = { ...tab, products: updatedProducts, total_amount, final_amount };
 
           return {
-            tabs: state.tabs.map((tab) =>
-              tab.id === state.activeTab ? newTab : tab
-            ),
+            tabs: {
+              ...state.tabs,
+              [state.activeTab]: newTab,
+            },
           };
         });
       },
 
-      addProduct: (product: ESProductDocument) =>
+      addProduct: (product) =>
         set((state) => {
-          const tab = state.tabs.find((tab) => tab.id === state.activeTab);
+          const tab = state.tabs[state.activeTab];
           if (!tab) return state;
-          const existingProductIndex = (
-            tab.products as Array<ESProductDocument>
-          ).findIndex((p) => p.unit_id === product.unit_id);
 
-          let updatedProducts;
+          const updatedProducts: Record<string, CashierCartItem> = tab.products;
 
-          if (existingProductIndex > -1) {
-            updatedProducts = (tab.products as Array<ESProductDocument>).map(
-              (p, index) =>
-                index === existingProductIndex
-                  ? {
-                      ...p,
-                      quantity: (p.quantity || 0) + (product.quantity || 1),
-                    }
-                  : p
-            );
+          if (tab.products[product.unit_id]) {
+            updatedProducts[product.unit_id] = {
+              ...tab.products[product.unit_id],
+              quantity: (tab.products[product.unit_id].quantity || 0) + (product.quantity || 1),
+            };
           } else {
-            updatedProducts = [
-              ...(tab.products as Array<ESProductDocument>),
-              product,
-            ];
+            updatedProducts[product.unit_id] = product;
           }
-          const newTab = {
-            ...tab,
-            products: updatedProducts,
-          };
 
-          return {
-            tabs: state.tabs.map((tab) =>
-              tab.id === state.activeTab ? newTab : tab
-            ),
-          };
+          const total_amount = Object.values(updatedProducts).reduce((acc, product) => {
+            return acc + (product.price * product.quantity || 0);
+          }, 0);
+
+          const final_amount =
+            total_amount -
+            (tab.discount_type === DiscountType.AMOUNT
+              ? tab.discount_value
+              : (total_amount * tab.discount_value) / 100);
+
+          const newTab = { ...tab, products: updatedProducts, total_amount, final_amount };
+
+          return { tabs: { ...state.tabs, [state.activeTab]: newTab } };
         }),
-      removeProduct: (productUnitId: string) =>
+
+      removeProduct: (productUnitId) =>
         set((state) => {
-          const tab = state.tabs.find((tab) => tab.id === state.activeTab);
+          const tab = state.tabs[state.activeTab];
           if (!tab) return state;
-          const newTab = {
-            ...tab,
-            products: (tab.products as Array<ESProductDocument>).filter(
-              (p) => p.unit_id !== productUnitId
-            ),
-          };
-          return {
-            tabs: state.tabs.map((tab) =>
-              tab.id === state.activeTab ? newTab : tab
-            ),
-          };
+
+          const updatedProducts = tab.products;
+          delete updatedProducts[productUnitId];
+
+          const total_amount = Object.values(updatedProducts).reduce((acc, product) => {
+            return acc + (product.price * product.quantity || 0);
+          }, 0);
+
+          const final_amount =
+            total_amount -
+            (tab.discount_type === DiscountType.AMOUNT
+              ? tab.discount_value
+              : (total_amount * tab.discount_value) / 100);
+
+          const newTab = { ...tab, products: updatedProducts, total_amount, final_amount };
+
+          return { tabs: { ...state.tabs, [state.activeTab]: newTab } };
         }),
+
       removeAllProducts: () =>
         set((state) => {
-          const tab = state.tabs.find((tab) => tab.id === state.activeTab);
+          const tab = state.tabs[state.activeTab];
           if (!tab) return state;
           const newTab = {
             ...tab,
-            products: [],
+            products: {},
           };
           return {
-            tabs: state.tabs.map((tab) =>
-              tab.id === state.activeTab ? newTab : tab
-            ),
+            tabs: { ...state.tabs, [state.activeTab]: newTab },
           };
         }),
+
       getActiveTabProducts: () => {
         const state = get();
-        const activeTab = state.tabs.find((tab) => tab.id === state.activeTab);
-        return activeTab?.products || []; // Returns products of active tab
+        const activeTab = state.tabs[state.activeTab];
+        return Object.values(activeTab?.products) || []; // Returns products of active tab
       },
+
+      changeDiscountType: (type) =>
+        set((state) => {
+          const tab = state.tabs[state.activeTab];
+          if (!tab) return state;
+          const discount_value =
+            type === DiscountType.AMOUNT ? tab.discount_value : (tab.total_amount * tab.discount_value) / 100;
+
+          const newTab = { ...tab, discount_type: type, discount_value };
+
+          return { tabs: { ...state.tabs, [state.activeTab]: newTab } };
+        }),
     }),
 
     {
-      name: "cashier-store",
+      name: 'cashier-store',
       storage: createJSONStorage(() => sessionStorage),
     }
   )

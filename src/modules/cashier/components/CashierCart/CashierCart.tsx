@@ -1,9 +1,10 @@
-import { useCashierStore } from "../../stores/cashierStore";
-import { DiscountType } from "../../type/type";
-import CashierProduct from "../CashierProduct";
+import { useCashierStore } from '../../stores/cashierStore';
+import { DiscountType } from '../../types';
+import CashierProduct from '../CashierProduct';
+import EmptyCart from '~/assets/images/cashier-placeholder.png';
 
 interface ICashierCartProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }
 export interface IProduct {
@@ -27,8 +28,7 @@ export interface IProduct {
   image?: string;
 }
 function CashierCart({ children, className }: ICashierCartProps) {
-  const { getActiveTabProducts, removeProduct, changeProductQuantity } =
-    useCashierStore((state) => state);
+  const { getActiveTabProducts, removeProduct, changeProductQuantity } = useCashierStore((state) => state);
   const products = getActiveTabProducts() || [];
   return (
     <div className={`${className}`}>
@@ -36,24 +36,19 @@ function CashierCart({ children, className }: ICashierCartProps) {
         products.map((product, index) => {
           return (
             <CashierProduct
-              onRemoveProduct={() => removeProduct(product.unit_id)}
-              onChangeQuantity={(type) => {
-                changeProductQuantity(product.id, type);
-              }}
-              key={product.unit_id}
               product={product}
               index={index + 1}
-            >
-              {" "}
-            </CashierProduct>
+              key={product.unit_id}
+              onRemoveProduct={() => removeProduct(product.unit_id)}
+              onChangeQuantity={(type) => {
+                changeProductQuantity(product.unit_id, type);
+              }}
+            />
           );
         })
       ) : (
-        <div className=" flex flex-col items-center w-full justify-center h-full">
-          <img
-            className="w-[297px] h-[240px] object-cover"
-            src="src/assets/images/cashier-placeholder.png"
-          />
+        <div className="flex flex-col items-center w-full justify-center h-full">
+          <img className="w-[297px] h-[240px] object-cover" src={EmptyCart} alt="" />
           <p className="text-[#2F4858]">Chưa có sản phẩm trả nào</p>
         </div>
       )}

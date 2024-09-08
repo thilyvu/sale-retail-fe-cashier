@@ -1,4 +1,4 @@
-import { Select } from "antd";
+import { Select } from 'antd';
 
 function UserSelect() {
   const onChange = (value: string) => {
@@ -6,7 +6,7 @@ function UserSelect() {
   };
 
   const onSearch = (value: string) => {
-    console.log("search:", value);
+    console.log('search:', value);
   };
   return (
     <Select
@@ -20,16 +20,16 @@ function UserSelect() {
       onSearch={onSearch}
       options={[
         {
-          value: "jack",
-          label: "Jack",
+          value: 'jack',
+          label: 'Jack',
         },
         {
-          value: "lucy",
-          label: "Lucy",
+          value: 'lucy',
+          label: 'Lucy',
         },
         {
-          value: "tom",
-          label: "Tom",
+          value: 'tom',
+          label: 'Tom',
         },
       ]}
     />
